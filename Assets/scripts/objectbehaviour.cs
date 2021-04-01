@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class objectbehaviour : MonoBehaviour
 {
     public enum Objects
@@ -15,10 +16,16 @@ public class objectbehaviour : MonoBehaviour
     public bool left, right;
     public Objects name;
     bool coin = false;
+    int coincount;
     public bool multiplecoins;
     Vector2 coindist, temp;
     bool active;
     bool mushroom, mushroomactive;
+
+    private void Start()
+    {
+       
+    }
     // Start is called before the first frame update
     private void OnEnable()
     {
@@ -135,7 +142,10 @@ public class objectbehaviour : MonoBehaviour
         {
             Destroy(this.transform.parent.gameObject);
         }
-
+        coincount++;
+        PlayerPrefs.SetInt("coincount", coincount);
+        PlayerPrefs.Save();
+        ScoreManager.inst.coins = true;
     }
 
     IEnumerator mushrooms()

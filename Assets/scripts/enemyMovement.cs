@@ -84,9 +84,17 @@ public class enemyMovement : MonoBehaviour
     IEnumerator destroyenemy(float time)
     {
         this.gameObject.tag = "Untagged";
+        score();
         yield return new WaitForSeconds(time);
         Destroy(this.gameObject);
             
+    }
+
+    void score()
+    {
+        ScoreManager.inst.score = true;
+        PlayerPrefs.SetInt("Scorecount", PlayerPrefs.GetInt("Scorecount")+ 100);
+        PlayerPrefs.Save();
     }
 
 }

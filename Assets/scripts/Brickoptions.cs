@@ -18,10 +18,13 @@ public class Brickoptions : MonoBehaviour
     public GameObject player;
     public RuntimeAnimatorController checkanimator;
     public bool stop = false;
+    
+
     // Start is called before the first frame update
     void Start()
     {
-        
+       
+
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -39,16 +42,18 @@ public class Brickoptions : MonoBehaviour
                     else
                     {
                         this.transform.GetChild(2).gameObject.SetActive(true);
-                    }
                     
+                    }
+                    stop = true;
                     break;
                 case Objects.coin:
-
+                    
                     this.transform.GetChild(1).gameObject.SetActive(true);
                     break;
                 case Objects.Mushroom:
 
                     this.transform.GetChild(2).gameObject.SetActive(true);
+                    stop = true;
                     break;
                 case Objects.flower:
                     if (temp != checkanimator)
@@ -59,7 +64,7 @@ public class Brickoptions : MonoBehaviour
                     {
                         this.transform.GetChild(2).gameObject.SetActive(true);
                     }
-
+                    stop = true;
                     break;
                 case Objects.energyflower:
                     if (temp != checkanimator)
@@ -70,10 +75,11 @@ public class Brickoptions : MonoBehaviour
                     {
                         this.transform.GetChild(2).gameObject.SetActive(true);
                     }
+                    stop = true;
                     break;
                 
             }
-            stop = true;
+            
             
         }
 

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 public class playermovement : MonoBehaviour
 {
     
@@ -9,7 +9,7 @@ public class playermovement : MonoBehaviour
     Rigidbody2D rigbody;
     Animator anim;
     private SpriteRenderer sprite_rend;
-    
+    int scorecount;
     bool IsGrounded,_dead;
     public GameObject breakable;
     //bool to make mario big
@@ -17,7 +17,7 @@ public class playermovement : MonoBehaviour
     public bool bigMario = false,redmario=false;
     public Sprite bigmariosprite;
     public RuntimeAnimatorController bigmarioanim, tempanim,bigredmarioanim, greenAnimator;
-
+    bool running;
     [Header("throwable")]
     bool throwable = false;
     public GameObject prefabBall;
@@ -25,11 +25,24 @@ public class playermovement : MonoBehaviour
     mydelegate Mydelegate;
     BoxCollider2D box;
     public int count;
-   //random variables
-   
+    int lives = 3;
+    //random variables
+
+    private void Awake()
+    {
+        if (PlayerPrefs.GetInt("Lives") != 0)
+        {
+            lives = PlayerPrefs.GetInt("Lives");
+        }
+        else
+        {
+            PlayerPrefs.SetInt("Lives", lives);
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {
+        
         _dead = false;
         IsGrounded = false;
         rigbody = GetComponent<Rigidbody2D>();
@@ -38,8 +51,8 @@ public class playermovement : MonoBehaviour
         tempanim = anim.runtimeAnimatorController;
         Mydelegate = changesprite;
         box = GetComponent<BoxCollider2D>();
-
-
+        scorecount = 0;
+        running = false;
     }
 
     private void Update()
@@ -47,6 +60,9 @@ public class playermovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Z))
         {
             thorwable_object();
+        }
+        if (running) {
+        StartCoroutine(score());
         }
     }
 
@@ -75,12 +91,15 @@ public class playermovement : MonoBehaviour
           }
          else if (Input.GetKey(KeyCode.LeftArrow))
          {
+                running = true;
                 transform.position += new Vector3(-speed, 0);
                 anim.SetBool("Runleft", true);
-            Mydelegate(false);
+               
+                Mydelegate(false);
           }
          else
         {
+                running = false;
            anim.SetBool("Runleft", false);
           }
          if (Input.GetKey(KeyCode.Space) && IsGrounded)
@@ -89,7 +108,7 @@ public class playermovement : MonoBehaviour
             IsGrounded = false;
         
           }
-          
+            
         }
     }
 
@@ -202,10 +221,20 @@ public class playermovement : MonoBehaviour
     {
         anim.SetBool("Isdead", true);
         IsGrounded = false;
+        lives--;
         this.transform.GetChild(0).gameObject.SetActive(false);
         rigbody.velocity = new Vector2(rigbody.velocity.x, 5);
         GetComponent<Collider2D>().enabled = false;
         rigbody.constraints = RigidbodyConstraints2D.FreezePositionX;
+        if (lives != 0)
+        {
+            PlayerPrefs.SetInt("Lives", lives);
+            SceneManager.LoadScene(0);
+        }
+        else
+        {
+            PlayerPrefs.SetInt("Lives", 0);
+        }
     }
 
     IEnumerator blink()
@@ -240,5 +269,20 @@ public class playermovement : MonoBehaviour
         sprite_rend.enabled = true;
         this.gameObject.tag = "Player";
         GetComponent<Animator>().runtimeAnimatorController = tempanim;
+    }
+
+    IEnumerator score()
+    {
+        yield return new WaitForSeconds(0.5f);
+        
+        
+            Debug.Log("working");
+           ScoreManager.inst.score = true;
+            scorecount += 1;
+            PlayerPrefs.SetInt("Scorecount", scorecount);
+            PlayerPrefs.Save();
+          yield return new WaitForSeconds(10f);
+        
+        
     }
 }
