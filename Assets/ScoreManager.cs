@@ -14,10 +14,11 @@ public class ScoreManager : MonoBehaviour
     public bool score;
 
     public Text lives;
-
+    public Text GameOver;
     private void Awake()
     {
-        
+        PlayerPrefs.SetInt("coincount", 0);
+        PlayerPrefs.SetInt("Scorecount",0);
         if (inst != null)
         {
             return;
@@ -49,6 +50,11 @@ public class ScoreManager : MonoBehaviour
         {
             Scoretext.text = "Score" + PlayerPrefs.GetInt("Scorecount").ToString();
             score = false;
+        }
+        if(PlayerPrefs.GetInt("Lives") == 0)
+        {
+            lives.text = "lives: 0";
+            GameOver.gameObject.SetActive(true);
         }
     }
 

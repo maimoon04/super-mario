@@ -4,13 +4,19 @@ using UnityEngine;
 
 public class enemyMovement : MonoBehaviour
 {
-    public GenericMovement move;
+    public enum enemy
+    {
+        basicenmey,
+        turtle
+    }
+    public enemy enemy_;
     public  bool killed ;
     public int enemyspeed;
     public bool left, right;
       Rigidbody2D rig;
     Animator anim;
     bool isdead=false;
+    public int turtlecount;
     // Start is called before the first frame update
     void Start()
     {
@@ -27,11 +33,21 @@ public class enemyMovement : MonoBehaviour
             if (right)
             {
                 transform.position += new Vector3(-enemyspeed, 0, 0) * Time.deltaTime;
+                if (enemy_ == enemy.turtle)
+                {
+                 transform.localScale = new Vector3(5, transform.localScale.y, transform.localScale.z);
+                }
             }
-            if (left)
+            else if (left)
             {
                 transform.position += new Vector3(enemyspeed, 0, 0) * Time.deltaTime;
+                if (enemy_ == enemy.turtle)
+                {
+                    transform.localScale = new Vector3(-5, transform.localScale.y, transform.localScale.z);
+                }
             }
+
+            
 
         }
         
@@ -40,36 +56,58 @@ public class enemyMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (enemy_ == enemy.basicenmey)
 
-        if (collision.gameObject.name == "killenemy")
         {
-            killed = true;
-            isdead = true;
-            anim.SetBool("Enemydeath", true);
-            Debug.Log("die");
-            StartCoroutine(destroyenemy(0.5f));
-
+            if (collision.gameObject.name == "killenemy")
+            {
+                killed = true;
+                isdead = true;
+                anim.SetBool("Enemydeath", true);
+                Debug.Log("die");
+                StartCoroutine(destroyenemy(0.5f));
+            }
         }
-        
+        else
+        {
+            if (collision.gameObject.name == "killenemy")
+            {
+                killed = true;
+                isdead = true;
+                anim.SetBool("Enemydeath", true);
+                Debug.Log("die");
+                StartCoroutine(turtlecourt());
+            }
+        }
+
+
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
      //   Debug.Log(killed);
-        if (left)
+        if (left  && collision.gameObject.tag!="ground")
         {
 
             left = false;
             right = true;
         }
-        else if (right)
+        else if (right && collision.gameObject.tag != "ground")
         {
 
             left = true;
             right = false;
 
         }
-        if (collision.gameObject.CompareTag("ball") || collision.gameObject.CompareTag("Invincible") )
+        if (turtlecount == 1 && collision.gameObject.CompareTag("Player"))
+        {
+            StartCoroutine(turtlecourt());
+        }
+        {
+
+        }
+        if (collision.gameObject.CompareTag("ball") || collision.gameObject.CompareTag("Invincible")
+           || collision.gameObject.CompareTag("Turtlepower"))
         {
             killed = true;
             isdead = true;
@@ -88,6 +126,20 @@ public class enemyMovement : MonoBehaviour
         yield return new WaitForSeconds(time);
         Destroy(this.gameObject);
             
+    }
+    IEnumerator turtlecourt()
+    {
+        turtlecount++;
+        yield return new WaitForSeconds(1f);
+        if(turtlecount == 2)
+        {
+            isdead = false;
+            this.gameObject.tag = "Turtlepower";
+            yield return new WaitForSeconds(0.5f);
+            killed = false;
+            enemyspeed = 5;
+            turtlecount = 0;
+        }
     }
 
     void score()

@@ -32,6 +32,14 @@ public class breakobject : MonoBehaviour
     IEnumerator des()
     {
         yield return new WaitForSeconds(p.main.startLifetime.constantMax);
+        score();
         Destroy(this.gameObject);
     }
+    void score()
+    {
+        ScoreManager.inst.score = true;
+        PlayerPrefs.SetInt("Scorecount", PlayerPrefs.GetInt("Scorecount") + 100);
+        PlayerPrefs.Save();
+    }
+
 }

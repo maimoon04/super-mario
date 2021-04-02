@@ -9,7 +9,7 @@ public class playermovement : MonoBehaviour
     Rigidbody2D rigbody;
     Animator anim;
     private SpriteRenderer sprite_rend;
-    int scorecount;
+    static int scorecount;
     bool IsGrounded,_dead;
     public GameObject breakable;
     //bool to make mario big
@@ -26,10 +26,13 @@ public class playermovement : MonoBehaviour
     BoxCollider2D box;
     public int count;
     int lives = 3;
+    public bool jumping=false,jumpcancel=false;
     //random variables
-
+    float tempspeed;
+    bool moveright = true;
     private void Awake()
     {
+       // PlayerPrefs.SetInt("Lives", 3);
         if (PlayerPrefs.GetInt("Lives") != 0)
         {
             lives = PlayerPrefs.GetInt("Lives");
@@ -61,8 +64,23 @@ public class playermovement : MonoBehaviour
         {
             thorwable_object();
         }
-        if (running) {
-        StartCoroutine(score());
+        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
+            {
+            jumping = true;
+        }
+        else if (Input.GetKeyUp(KeyCode.Space) && !IsGrounded)
+        {
+            jumpcancel = true;
+        }
+        if (running)
+        {
+            var tempcampos = Camera.main.transform.position;
+            tempcampos.x += 6.32f;
+            if (transform.position.x >= tempcampos.x)
+            {
+                moveright = false;
+            }
+           
         }
     }
 
@@ -80,21 +98,22 @@ public class playermovement : MonoBehaviour
         {
 
         
-         if (Input.GetKey(KeyCode.RightArrow))
+         if (Input.GetKey(KeyCode.RightArrow) && moveright)
          {
            transform.position += new Vector3(speed,0);
            Vector2 localscale = new Vector2(-transform.localScale.x, transform.localScale.y);
            cameraFollow.checkcam = false;
-            anim.SetBool("Runleft", true);
+           running = true;
+           anim.SetBool("Runleft", true);
             Mydelegate(true);
 
           }
          else if (Input.GetKey(KeyCode.LeftArrow))
          {
-                running = true;
+                moveright = true;
                 transform.position += new Vector3(-speed, 0);
                 anim.SetBool("Runleft", true);
-               
+                running = false;
                 Mydelegate(false);
           }
          else
@@ -102,13 +121,25 @@ public class playermovement : MonoBehaviour
                 running = false;
            anim.SetBool("Runleft", false);
           }
-         if (Input.GetKey(KeyCode.Space) && IsGrounded)
+           
+         if (jumping )
          {
-            rigbody.velocity = new Vector2(rigbody.velocity.x, 6.5f);
-            IsGrounded = false;
+                float tempspeed = speed;
+                speed = 0.05f;
+               /* rigbody.AddForce(Vector3.up * 1000f*Time.deltaTime)*/;
+                rigbody.velocity = new Vector2(rigbody.velocity.x, 8.7f);
+                jumping = false;
+                IsGrounded = false;
         
           }
-            
+            else if (jumpcancel)
+            {
+                if (rigbody.velocity.y > 3)
+                    rigbody.velocity = new Vector2(rigbody.velocity.x, 3f);
+                jumpcancel = false;
+                speed = 0.089f;
+            }
+
         }
     }
 
@@ -146,7 +177,7 @@ public class playermovement : MonoBehaviour
             IsGrounded = true;
         }
         
-        if (collision.gameObject.CompareTag("Enemy") )
+        if (collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Turtlepower"))
         {
             var temp = collision.gameObject.GetComponent<enemyMovement>();
             if (!temp.killed && !bigMario)
@@ -174,6 +205,7 @@ public class playermovement : MonoBehaviour
         if (collision.gameObject.CompareTag("Mushroom"))
         {
             StartCoroutine(blink());
+            score(1000);
             redmario = true;
                 bigMario = true;
                 gameObject.GetComponent<SpriteRenderer>().sprite = bigmariosprite;
@@ -186,6 +218,7 @@ public class playermovement : MonoBehaviour
 
         if (collision.gameObject.CompareTag("flower"))
         {
+            score(1000);
             StartCoroutine(blink());
             if (redmario)
             {
@@ -205,11 +238,13 @@ public class playermovement : MonoBehaviour
         if (collision.gameObject.CompareTag("star"))
         {
             throwable = true;
+            score(1000);
         }
 
         if (collision.gameObject.CompareTag("energyflower"))
         {
             this.gameObject.tag = "Invincible";
+            score(1000);
             StartCoroutine(blinkInvincible());
 
         }
@@ -236,6 +271,7 @@ public class playermovement : MonoBehaviour
             PlayerPrefs.SetInt("Lives", 0);
         }
     }
+
 
     IEnumerator blink()
     {
@@ -271,17 +307,17 @@ public class playermovement : MonoBehaviour
         GetComponent<Animator>().runtimeAnimatorController = tempanim;
     }
 
-    IEnumerator score()
+    void score(int value)
     {
-        yield return new WaitForSeconds(0.5f);
+       
         
         
-            Debug.Log("working");
+           
            ScoreManager.inst.score = true;
-            scorecount += 1;
+            scorecount += value;
             PlayerPrefs.SetInt("Scorecount", scorecount);
             PlayerPrefs.Save();
-          yield return new WaitForSeconds(10f);
+          
         
         
     }

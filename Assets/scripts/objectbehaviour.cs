@@ -16,7 +16,8 @@ public class objectbehaviour : MonoBehaviour
     public bool left, right;
     public Objects name;
     bool coin = false;
-    int coincount;
+    static int coincount;
+        int maxcoin=0;
     public bool multiplecoins;
     Vector2 coindist, temp;
     bool active;
@@ -133,8 +134,9 @@ public class objectbehaviour : MonoBehaviour
     {
         yield return new WaitForSeconds(time);
         coin = false;
-        if (multiplecoins)
+        if (multiplecoins && maxcoin!=10)
         {
+            maxcoin++;
             transform.position = temp;
             this.gameObject.SetActive(false);
         }
@@ -146,6 +148,7 @@ public class objectbehaviour : MonoBehaviour
         PlayerPrefs.SetInt("coincount", coincount);
         PlayerPrefs.Save();
         ScoreManager.inst.coins = true;
+        //maxcoin = 0;
     }
 
     IEnumerator mushrooms()
