@@ -65,6 +65,7 @@ public class enemyMovement : MonoBehaviour
                 isdead = true;
                 anim.SetBool("Enemydeath", true);
                 Debug.Log("die");
+                collision.gameObject.transform.parent.gameObject.GetComponent<Animator>().SetBool("Jump", false);
                 StartCoroutine(destroyenemy(0.5f));
             }
         }
@@ -76,6 +77,7 @@ public class enemyMovement : MonoBehaviour
                 isdead = true;
                 anim.SetBool("Enemydeath", true);
                 Debug.Log("die");
+                collision.gameObject.transform.parent.gameObject.GetComponent<Animator>().SetBool("Jump", false);
                 StartCoroutine(turtlecourt());
             }
         }
@@ -114,7 +116,8 @@ public class enemyMovement : MonoBehaviour
             anim.SetBool("Enemydeath", true);
             this.transform.rotation = new Quaternion(0, 0, 180, 0);
             rig.velocity = new Vector2(rig.velocity.x, 5);
-            this.GetComponent<BoxCollider2D>().enabled = false;
+            GetComponent<Collider2D>().enabled = false;
+            rig.constraints = RigidbodyConstraints2D.FreezePositionX;
             StartCoroutine(destroyenemy(2f));
         }
     }

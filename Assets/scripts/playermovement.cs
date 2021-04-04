@@ -82,6 +82,11 @@ public class playermovement : MonoBehaviour
             }
            
         }
+        if (IsGrounded)
+        {
+
+            anim.SetBool("Jump", false);
+        }
     }
 
     // Update is called once per frame
@@ -104,15 +109,22 @@ public class playermovement : MonoBehaviour
            Vector2 localscale = new Vector2(-transform.localScale.x, transform.localScale.y);
            cameraFollow.checkcam = false;
            running = true;
-           anim.SetBool("Runleft", true);
-            Mydelegate(true);
+                if (IsGrounded)
+                {
+                    anim.SetBool("Runleft", true);
+                 } 
+                Mydelegate(true);
 
           }
          else if (Input.GetKey(KeyCode.LeftArrow))
          {
                 moveright = true;
                 transform.position += new Vector3(-speed, 0);
-                anim.SetBool("Runleft", true);
+                if (IsGrounded)
+                {
+                   
+                    anim.SetBool("Runleft", true);
+                }
                 running = false;
                 Mydelegate(false);
           }
@@ -130,6 +142,8 @@ public class playermovement : MonoBehaviour
                 rigbody.velocity = new Vector2(rigbody.velocity.x, 8.7f);
                 jumping = false;
                 IsGrounded = false;
+                anim.SetBool("Runleft", false);
+                anim.SetBool("Jump", true);
         
           }
             else if (jumpcancel)
@@ -150,7 +164,7 @@ public class playermovement : MonoBehaviour
             var obj = this.transform.GetChild(1);
             var temp = Instantiate(prefabBall, obj.transform.position, Quaternion.identity);
         Debug.Log(temp.name);
-        if (IsGrounded) { temp.GetComponent<Rigidbody2D>().AddForce(new Vector2(300f, 200f)); }
+        if (IsGrounded) { temp.GetComponent<Rigidbody2D>().AddForce(new Vector2(-600f, 100f)); }
         else { temp.GetComponent<Rigidbody2D>().AddForce(new Vector2(-300f, -200f)); }
         
         }
@@ -248,6 +262,19 @@ public class playermovement : MonoBehaviour
             StartCoroutine(blinkInvincible());
 
         }
+        else if (collision.gameObject.CompareTag("Playerfall"))
+        {
+            lives--;
+            if (lives != 0)
+            {
+                PlayerPrefs.SetInt("Lives", lives);
+                StartCoroutine(wait());
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Lives", 0);
+            }
+        }
 
     }
 
@@ -264,7 +291,7 @@ public class playermovement : MonoBehaviour
         if (lives != 0)
         {
             PlayerPrefs.SetInt("Lives", lives);
-            SceneManager.LoadScene(0);
+            StartCoroutine(wait());
         }
         else
         {
@@ -307,6 +334,11 @@ public class playermovement : MonoBehaviour
         GetComponent<Animator>().runtimeAnimatorController = tempanim;
     }
 
+    IEnumerator wait()
+    {
+        yield return new WaitForSeconds(3f);
+        SceneManager.LoadScene(0);
+    }
     void score(int value)
     {
        

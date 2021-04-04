@@ -15,6 +15,7 @@ TagManager:
   - flower
   - hurdle
   - Turtlepower
+  - Playerfall
   layers:
   - Default
   - TransparentFX
