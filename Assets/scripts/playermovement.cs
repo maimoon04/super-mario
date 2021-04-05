@@ -30,6 +30,7 @@ public class playermovement : MonoBehaviour
     //random variables
     float tempspeed;
     bool moveright = true;
+    private bool invincible=false; 
     private void Awake()
     {
        // PlayerPrefs.SetInt("Lives", 3);
@@ -199,7 +200,7 @@ public class playermovement : MonoBehaviour
                 dead();
                 _dead = true;
             }
-            if (bigMario)
+            if (bigMario && !invincible)
             {
                 if(transform.position.y< -3.028f)
                 {
@@ -257,7 +258,9 @@ public class playermovement : MonoBehaviour
 
         if (collision.gameObject.CompareTag("energyflower"))
         {
+            
             this.gameObject.tag = "Invincible";
+            invincible = true;
             score(1000);
             StartCoroutine(blinkInvincible());
 
@@ -332,6 +335,7 @@ public class playermovement : MonoBehaviour
         sprite_rend.enabled = true;
         this.gameObject.tag = "Player";
         GetComponent<Animator>().runtimeAnimatorController = tempanim;
+        invincible = false;
     }
 
     IEnumerator wait()
